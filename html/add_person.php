@@ -25,7 +25,7 @@
       VALUES ('$email', '$userPassword', '$currencyID', '$createDate', '$updateDate', '$ImageName','$statusID')");
 
      $last_id = mysqli_insert_id($con);
-     $ImagePath = "upload/$ImageName".$last_id.".jpg";
+     $ImagePath = "upload/$ImageName.jpg";
 
     if($result){
       file_put_contents($ImagePath,base64_decode($imgData));
@@ -37,7 +37,33 @@
     }
 
 
-  }else{
+  }else if(isset($_POST['email']) && isset($_POST['first_name']) && isset($_POST['last_name'])
+    && isset($_POST["create_date"]) && isset($_POST["update_date"]) && isset($_POST["currencyID"]) && isset($_POST["statusID"]) ){
+      $email = $_POST['email'];
+      $firstName = $_POST['first_name'];
+      $lastName = $_POST['last_name'];
+      $createDate = $_POST['create_date'];
+      $updateDate = $_POST['update_date'];
+      $currencyID = $_POST['currencyID'];
+      $statusID = $_POST['statusID'];
+
+      include("db_config.php");
+      $con = mysqli_connect(DB_SERVER,DB_USER,DB_PASSWORD,DB_DATABASE);
+
+      $result = mysqli_query($con, "INSERT INTO usuario (first_name, last_name, user_email, currencyID, create_date, update_date, statusID)
+        VALUES ('$firstName', '$lastName', '$email', '$currencyID', '$createDate', '$updateDate','$statusID')");
+
+      $last_id = mysqli_insert_id($con);
+
+      if($result){
+        $response["success"] = true;
+        $response["message"] = "User added successfully";
+      }else{
+        $response["success"] = false;
+        $response["message"] = "cannot add user";
+      }
+
+  } else {
     $response["success"] = false;
     $response["message"] = "Missging values";
   }
