@@ -21,24 +21,35 @@
     include("db_config.php");
     $con = mysqli_connect(DB_SERVER,DB_USER,DB_PASSWORD,DB_DATABASE);
 
-    $result = mysqli_query($con, "INSERT INTO usuario (user_email, user_password, currencyID, create_date, update_date, img_url,statusID)
-      VALUES ('$email', '$userPassword', '$currencyID', '$createDate', '$updateDate', '$ImageName','$statusID')");
+    $query = "SELECT * FROM usuario WHERE user_email = '".$email."'";
+    $stm = $con->query($query);
+    $usuario = mysqli_fetch_array($stm);
 
-     $last_id = mysqli_insert_id($con);
-     $ImagePath = "upload/$ImageName.jpg";
+    if(count($usuario) <= 0){
+      $result = mysqli_query($con, "INSERT INTO usuario (user_email, user_password, currencyID, create_date, update_date, img_url,statusID, create_source)
+        VALUES ('$email', '$userPassword', '$currencyID', '$createDate', '$updateDate', '$ImageName','$statusID', 'Email')");
 
-    if($result){
+       $last_id = mysqli_insert_id($con);
+       $ImagePath = "upload/$ImageName.jpg";
+    }
+
+    if(isset($result) && $result){
       file_put_contents($ImagePath,base64_decode($imgData));
       $response["success"] = true;
       $response["message"] = "User added successfully";
-    }else{
+    }else if(count($usuario) > 0){
+      $response["success"] = false;
+      $response["message"] = "El email ya esta registrado.";
+    } else {
       $response["success"] = false;
       $response["message"] = "cannot add user";
     }
+    /*$response['success'] = true;
+    $response['message'] = $query;*/
 
 
   }else if(isset($_POST['email']) && isset($_POST['first_name']) && isset($_POST['last_name'])
-    && isset($_POST["create_date"]) && isset($_POST["update_date"]) && isset($_POST["currencyID"]) && isset($_POST["statusID"]) ){
+    && isset($_POST["create_date"]) && isset($_POST["update_date"]) && isset($_POST["currencyID"]) && isset($_POST["statusID"]) && isset($_POST["Facebook"])){
       $email = $_POST['email'];
       $firstName = $_POST['first_name'];
       $lastName = $_POST['last_name'];
@@ -50,17 +61,26 @@
       include("db_config.php");
       $con = mysqli_connect(DB_SERVER,DB_USER,DB_PASSWORD,DB_DATABASE);
 
-      $result = mysqli_query($con, "INSERT INTO usuario (first_name, last_name, user_email, currencyID, create_date, update_date, statusID)
-        VALUES ('$firstName', '$lastName', '$email', '$currencyID', '$createDate', '$updateDate','$statusID')");
+      $query = "SELECT * FROM usuario WHERE user_email ='".$email."'";
+      $stm = $con->query($query);
+      $usuario = mysqli_fetch_array($stm);
 
-      $last_id = mysqli_insert_id($con);
+      if(count($usuario) <= 0){
+        $result = mysqli_query($con, "INSERT INTO usuario (first_name, last_name, user_email, currencyID, create_date, update_date, statusID, create_source)
+          VALUES ('$firstName', '$lastName', '$email', '$currencyID', '$createDate', '$updateDate','$statusID', 'Facebook')");
 
-      if($result){
+        $last_id = mysqli_insert_id($con);
+      }
+
+      if(isset($result) && $result){
         $response["success"] = true;
         $response["message"] = "User added successfully";
+      }else if(count($usuario) > 0){
+        $response["success"] = false;
+        $response["message"] = "El email ya esta registrado.";
       }else{
         $response["success"] = false;
-        $response["message"] = "cannot add user";
+        $response["message"] = "Algo salio mal";
       }
 
   } else {

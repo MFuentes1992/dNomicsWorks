@@ -8,10 +8,10 @@
   //echo $result['user_email'];
   //header("Content-type: image/jpeg");
   $image =  $result['img_url'];
-  $path = $image.''.$userID.".jpg";
+  $path = $image.".jpg";
   //echo $image;
   //var_dump($result['img_data']);
   //echo $path;
-  echo '<img src="http://192.168.0.14/upload/'.$path.'"/>';
+  echo '<img src="http://dnomicscloudeagle.com/upload/'.$path.'"/>';
 
  ?>
